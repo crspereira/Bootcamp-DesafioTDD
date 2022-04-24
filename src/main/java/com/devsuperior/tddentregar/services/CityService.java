@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.devsuperior.tddentregar.dto.CityDTO;
 import com.devsuperior.tddentregar.entities.City;
 import com.devsuperior.tddentregar.repositories.CityRepository;
+import com.devsuperior.tddentregar.services.exceptions.ServicesDataBaseException;
+import com.devsuperior.tddentregar.services.exceptions.ServicesNotFoundException;
 
 @Service
 public class CityService {
@@ -30,6 +34,16 @@ public class CityService {
 		city.setName(cityDto.getName());
 		cityRepository.save(city);
 		return new CityDTO(city);
+	}
+	
+	public void delete(Long id) {
+		try {
+			cityRepository.deleteById(id);
+		} catch (EmptyResultDataAccessException e) {
+			throw new ServicesNotFoundException("ID ["+ id +"] Not Found!");
+		} catch (DataIntegrityViolationException e) {
+			throw new ServicesDataBaseException("DataBase Integrity Violation!");
+		}
 	}
 
 }
